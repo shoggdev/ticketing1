@@ -3,6 +3,9 @@ name: tests-payments
 # When the action should run
 on:
   pull_request
+# Only when the following files change
+    paths:
+      - 'payments/**'
 
 # What should happen
 jobs:

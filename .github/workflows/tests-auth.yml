@@ -2,7 +2,10 @@ name: tests-auth
 
 # When the action should run
 on:
-  pull_request
+  pull_request:
+# Only when the following files change
+    paths:
+      - 'auth/**'
 
 # What should happen
 jobs:

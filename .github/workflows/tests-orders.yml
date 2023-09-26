@@ -3,6 +3,9 @@ name: tests-orders
 # When the action should run
 on:
   pull_request
+# Only when the following files change
+    paths:
+      - 'orders/**'
 
 # What should happen
 jobs:
