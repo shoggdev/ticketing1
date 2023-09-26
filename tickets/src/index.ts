@@ -5,6 +5,8 @@ import { OrderCreatedListener } from './events/listeners/order-created-listener'
 import { OrderCancelledListener } from './events/listeners/order-cancelled-listener'; // Needed to unreserve tickets
 
 const start = async () => {
+  console.log('Tickets service starting...');
+
   // Checking that the environment variables we rely on are defined.
   if(!process.env.JWT_KEY) {
     throw new Error('ERROR: Environment variable JWT_KEY not defined.');
