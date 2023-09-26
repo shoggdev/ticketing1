@@ -5,6 +5,8 @@ import { OrderCancelledListener } from './events/listeners/order-cancelled-liste
 import { OrderCreatedListener } from './events/listeners/order-created-listener';
 
 const start = async () => {
+  console.log('Payments service starting...');
+
   // Checking that the environment variables we rely on are defined.
   if(!process.env.JWT_KEY) {
     throw new Error('ERROR: Environment variable JWT_KEY not defined.');
