@@ -1,0 +1,19 @@
+name: tests-payments
+
+# When the action should run
+on:
+  pull_request:
+# Only when the following files change
+    paths:
+      - 'payments/**'
+
+# What should happen
+jobs:
+# Start a container running ubuntu
+  build:
+    runs-on: ubuntu-latest
+# Take all the code out of the project
+    steps:
+      - uses: actions/checkout@v2
+# Run the test script in the auth service
+      - run: cd payments && npm install && npm run test:ci
