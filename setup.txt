@@ -138,4 +138,10 @@ git pull origin master
 
 // For making a code change, make the change then create a new branch called dev
 git checkout -b dev
-// Check for the changesgit status
+// Check for the changes
+git status
+git add .
+// Commit the changes to the dev branch
+git commit -m "Added starting up message"
+// Push the changes to github
+git push origin dev
