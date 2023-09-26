@@ -128,7 +128,20 @@ Set it to execute on a pull request event and run the auth service on an ubuntu 
 It should isntall the services dependencies and run the tests:ci scripts.
 Add a new test:ci script to the auth packages.json.
 See all the files that have changed with
+
 git status
 git add ..
 git commit -m "add test:ci to auth"
 git push origin master
+// get the latest changes from github
+git pull origin master
+
+// For making a code change, make the change then create a new branch called dev
+git checkout -b dev
+// Check for the changes
+git status
+git add .
+// Commit the changes to the dev branch
+git commit -m "Added starting up message"
+// Push the changes to github
+git push origin dev

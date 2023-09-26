@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import {app} from './app';
 
 const start = async () => {
+  console.log('Starting up...');
+
   // Checking that the environment variables we rely on are defined.
   if(!process.env.JWT_KEY) {
     throw new Error('ERROR: Enviroment variable JWT_KEY not defined.');
