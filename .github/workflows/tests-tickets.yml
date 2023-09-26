@@ -2,7 +2,7 @@ name: tests-tickets
 
 # When the action should run
 on:
-  pull_request
+  pull_request:
 # Only when the following files change
     paths:
       - 'tickets/**'
