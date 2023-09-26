@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-mongo-depl
+spec:
+# Number of pods we want to run
+  replicas: 1
+# Tell the deplyment how to find all the pods it's going to create
+  selector:
+    matchLabels:
+      app: payments-mongo
+# Describe how to create the pods the deplyment will create
+  template:
+    metadata:
+# Specify a label for the pod
+      labels:
+        app: payments-mongo
+# Tell the pod how to behave
+    spec:
+      containers:
+        - name: payments-mongo
+# Use the dockerhub official mongo image
+          image: mongo
+---
+# Create a cluter ip service to allow communication from and only from other things in the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-mongo-srv
+# Tell the service how to behave
+spec:
+# Not specifying type here. The default will be cluster ip.
+# Tell the servie which pod to gorvern access to
+  selector:
+# Govern access to pods with the following label
+    app: payments-mongo
+  ports:
+    - name: db
+      protocol: TCP
+      port: 27017
+      targetPort: 27017

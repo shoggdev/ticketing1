@@ -1,0 +1,32 @@
+// This project sets up two scripts that can be run using npm to publish and consume events
+// to and from the nats streaming server running in the kubernetes cluster.
+
+// Generate a package.json file with
+npm init -y
+
+// Install dependencies
+npm install node-nats-streaming ts-node-dev typescript @types/node
+
+// Create the publish and listen node source files
+
+// Add the publish and listen scripts to package.json to run these source files.
+
+// Create a tsconfig.json file in the project by running
+tsc --init
+
+npm install -g typescript
+
+// To setup kubernetes to forward outside ports straight to the nats pod do the following.
+// This is a quick and easy way to let these scripts publish and consume to the nats pod
+// in a dev environment without setting up complicated infrastructure.
+// Get the nats pod name without
+kubectl get pods
+Then forward ports to it
+kubectl port-forward nats-depl-XXXXXX 4222:4222
+// Then from another terminal run
+npm run publish
+// To break this port forwarding, just stop the process that is running it.
+
+// To see the monitoring app in NATS, first forward the ports that the monitoring is set up on in the deployment yaml file
+kubectl port-forward nats-depl-XXXXXX 8222:8222
+// Open web browser and go to http://localhost:8222/streaming

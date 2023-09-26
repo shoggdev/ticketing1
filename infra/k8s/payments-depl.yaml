@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-depl
+spec:
+# Number of pods we want to run
+  replicas: 1
+# Tell the deplyment how to find all the pods it's going to create
+  selector:
+    matchLabels:
+      app: payments
+# Describe how to create the pods the deplyment will create
+  template:
+    metadata:
+# Specify a label for the pod
+      labels:
+        app: payments
+# Tell the pod how to behave
+    spec:
+      containers:
+        - name: payments
+          image: shoggdev/payments
+# Specify the environment variables
+          env:
+# Specify the env variable name that will be used to access it from within the container code
+            - name: NATS_CLIENT_ID
+# The value of this could be random but should be unique. Better to use the generated pod name so that each instance or copy of the micro service can be identified more easily in logs etc.
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+# Specify the env variable name that will be used to access it from within the container code
+            - name: NATS_URL
+# The value of this should be the URL of the service governing access to the NATS pod. The domain will be the name:port of the metadata name of the cluterip service.
+              value: 'http://nats-srv:4222'
+# Specify the env variable name that will be used to access it from within the container code
+            - name: NATS_CLUSTER_ID
+# Cluster Id defined in the NATS cluster deployment file
+              value: 'ticketing'
+# Specify the env variable name that will be used to access it from within the container code
+            - name: MONGO_URI
+# Value should be set from the name of the cluster ip service set in payments-mongo-depl.yaml / name of database in mongo instance. i.e. /payments.
+              value: 'mongodb://payments-mongo-srv:27017/payments'
+# Specify the env variable name that will be used to access it from within the container code
+            - name: JWT_KEY
+# Set it to the value of the environment variable.
+              valueFrom:
+                secretKeyRef:
+# Specofy the name of secret holding the value. The name of the secret was set when it was created
+# kubectl create secret generic jwt-secret --from-literal=JWT_KEY=TODO_TEMPORARY_SECRET_PRIVATE_KEY
+                  name: jwt-secret
+# Specify the name of the key in the secret to get the value from to set the enviroment variable
+                  key: JWT_KEY
+# Specify the env variable name that will be used to access it from within the container code
+            - name: STRIPE_KEY
+# Set it to the value of the environment variable.
+              valueFrom:
+                secretKeyRef:
+# Specofy the name of secret holding the value. The name of the secret was set when it was created
+# kubectl create secret generic stripe-secret --from-literal STRIPE_KEY=TODO_TEMPORARY_SECRET_PRIVATE_KEY
+                  name: stripe-secret
+# Specify the name of the key in the secret to get the value from to set the enviroment variable
+                  key: STRIPE_KEY
+---
+# Create a cluster ip service to allow communication from and only from other things in the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-srv
+# Tell the service how to behave
+spec:
+# Not specifying type here. The default will be cluster ip.
+# Tell the service which pod to gorvern access to
+  selector:
+# Govern access to pods with the following label
+    app: payments
+  ports:
+    - name: payments
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

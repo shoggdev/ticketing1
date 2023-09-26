@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-depl
+# The spec describes how the deployment is meant to behave
+spec:
+# Number of pods we want to run
+  replicas: 1
+# Tell the deplyment how to find all the pods it's going to create
+  selector:
+    matchLabels:
+      app: client
+# Describe how to create the pods the deplyment will create
+  template:
+    metadata:
+# Specify a label for the pod
+      labels:
+        app: client
+# Tell the pod how to behave
+    spec:
+      containers:
+        - name: client
+          image: shoggdev/client
+---
+# Create a cluster ip service to allow communication from and only from other things in the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-srv
+# Tell the service how to behave
+spec:
+# Not specifying type here. The default will be cluster ip.
+# Tell the service which pod to gorvern access to
+  selector:
+# Govern access to pods with the following label
+    app: client
+  ports:
+    - name: client
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

@@ -1,0 +1,89 @@
+// Create the package.json file for the client
+npm init -y
+
+// install three dependencies
+npm install react react-dom next
+
+Create a pages folder and index.js inside there
+/ticketing/client/pages/index.js
+The files in the pages folder map to routes visited in the browser as the app is navigated. So localhost:3000 will load
+index.js and localhost:3000/banana would load pages/banana.js if it existed.
+Each file in the pages folder needs to export a default component.
+
+// Add a "dev" script to packages.json to run next
+"scripts": {
+  "dev": "next"
+}
+// To run next and start up a server at localhost:3000
+npm run dev
+
+Create a Dockerfile and docker.ignore file. Include the node_modules and next folders in the docker ignore file.
+Build the docker image and push it to docker hub
+Create a kubernetes deployment file in/infra/k8s/client-deply.yaml
+Update skaffold.yaml to setup file syncing and to monitor for changes in the client folder.
+Update the ingress service config in infra/k8s/ingress-srv.yaml
+
+Add next.config.js to improve NextJS file change detection when running in a container
+
+Global CSS files like bootstrap have to be wired upto nextjs in a very particular wasy.
+Add /components/pages/_app.js
+Create a default export AppComponent in here that takes two props: Component and pageProps. it should return Component with pageProps spreadinto its props.
+e.g.
+  export default ({Component, pageProps}) => {
+    return <Component {...pageProps}>
+  };
+When you navigate to a page, NextJS will import a component from one of the files in the pages folder. It first wraps
+that components inside it's own default component, referred to as the app. This _app.js is our own defintion of this customer component.
+So components loaded form files in the pages folder are passed into this _app.js component as the Component prop.
+pageProps will be the set of components that we are intending to send into the component defined in one of the fiesl inthe pages folder.
+If we want to include glabal css, we need to import it into this _app.js file. Which is why we would need to define it ourselves.
+
+// Install bootstrap
+npm install bootstrap
+Then import it into _app.js
+
+Create a file such as /pages/auth/signup.js
+The default export component defined in here will be rendered when the URL /auth/signup is visited.
+
+// Install axios so that the client can call APIs
+npm install axios
+
+// NextJS process
+When the request comes in, NextJS uses the URL to work out which components to show.
+It then calls the getInitialProps() static method on those components while its attempting to render the components on the server. getInitialProps is our opporunity to fetch
+some data that the component needs during the server side rendering process. Any data returned from it is provided to the component as a prop.
+NextJS then assembles all the HTML for allthe components and sends back a response.
+You can't do any data loading inside the components themselves during server side rendering. Once the rendered component is sent to the browser, getInitialProps is not used again
+(*see below for exceptions) and the component can do what it likes. getInitialProps is only used during server side rendering (*see next paragraph).
+
+You cannot use hooks inside getInitialProps.
+
+getInitialProps is called on the server when:
+  For hard refresh of page in browser
+  Clicking link to the app from a different domain
+  Typing a url into the address bar
+***getInitialProps can run on the browser***
+  Navigating form one page to another while in the client app. e.g. using push to redirect.
+
+
+-- App Component getInitialProps--
+getInitialProps on the main NextJS App component receives a slightly different context object.
+For page component, context looks like this:
+context == {req, res}
+For the customer App component it looks like
+context == {Component, ctx: {req, res}}
+NOTE:When getInitialProps is defined on a custom app component, the getInitialProps on pages are not automatically
+invoked anymore.
+You can manually invoke a compoenents getInitialProps from isnide the App component getInitialProps
+
+--- C00kies and Signout. --
+
+Make sure that signout routes are always called from the browser and not while on the server.
+i.e. from a component and not during getInitialProps.
+The signout route resets the session and returns a cookie that the browser should receive to signout properly.
+
+-- install react-stripe-checkout
+npm install react-stripe-checkout
+-- install prop-types otherwise the stripe dependency wont work
+npm install prop-types
+

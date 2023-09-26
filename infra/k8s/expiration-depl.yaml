@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expiration-depl
+spec:
+# Number of pods we want to run
+  replicas: 1
+# Tell the deplyment how to find all the pods it's going to create
+  selector:
+    matchLabels:
+      app: expiration
+# Describe how to create the pods the deplyment will create
+  template:
+    metadata:
+# Specify a label for the pod
+      labels:
+        app: expiration
+# Tell the pod how to behave
+    spec:
+      containers:
+        - name: expiration
+          image: shoggdev/expiration
+# Specify the environment variables
+          env:
+# Specify the env variable name that will be used to access it from within the container code
+            - name: NATS_CLIENT_ID
+# The value of this could be random but should be unique. Better to use the generated pod name so that each instance or copy of the micro service can be identified more easily in logs etc.
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+# Specify the env variable name that will be used to access it from within the container code
+            - name: NATS_URL
+# The value of this should be the URL of the service governing access to the NATS pod. The domain will be the name:port of the metadata name of the cluterip service.
+              value: 'http://nats-srv:4222'
+# Specify the env variable name that will be used to access it from within the container code
+            - name: NATS_CLUSTER_ID
+# Cluster Id defined in the NATS cluster deployment file
+              value: 'ticketing'
+# Specify the env variable name that will be used to access it from within the container code
+            - name: REDIS_HOST
+              value: expiration-redis-srv

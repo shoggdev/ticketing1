@@ -1,0 +1,99 @@
+// Copy .dockerignore, Dockerfile, package.json and tsconfig.json from the tickets project
+// Make a src folder and copy these two folders from tickets: __mocks__, test and these files: inde.ts, app.ts, nats-wrapper.ts
+// Remove the ticket route stuff from app.ts
+// Remove the listener imports and instantiations from index.ts
+// Update that service name in package.json. Keep all the dependencies as it'll need express, jwt, session, cookies, mongoose, nats, typescripts etc.
+
+// Build a docker image and push to dockerhub
+docker build -t shoggdev/payments .
+docker push shoggdev/payments
+
+// Add the image to the skaffold yaml file.
+
+// Create a kubenetes deployment file newresources-depl.yaml
+// Copy the contents on the tickets deplyment file and replace the word tickets with the new resource name. Including in the mongo uri and cluster ip service name.
+
+// Create a mongo deployment file. newresourcename-mongo-depl.yaml. Copy the contents from the tickets mongo deployments and replace the word tickets with the new resource name.
+
+// Check for the occurrence of tickets / old resrouce name in all the new yaml files to make sure none were missed.
+
+// Update the console logs for DB connection and listening on port in index.ts to the new service / resource name.
+
+// Install dependencies on local machine. Change to new project root and run
+npm install
+
+// Create the models that are required in src/models.
+// For those models that are not the service's primary model, they will likely be created to duplicate a resource created in another service. So when we build the model
+// in this service, remember that the build will specify an ID value and it won't beleaving it to mongoose to generate. So the build method will also need to convert
+// a provided id attribute named id to the mongo field name _id. Otherwise mongoose will ignore the id and generate its own new one and call it _id.
+
+// Install mongoose-update-if-current
+npm install mongoose-update-if-current
+
+// Update the model schema so that mongoose uses version as a key name rather than _id
+// Update the model schema so that it uses the update if current plugin.
+
+// Create the events/listener folder and the queue-group-name.ts file in there. Set a queue group name that can be used by the listeners.
+// Create the listeners e.g. events/listnerns/resource-created-listner.ts
+// If the listener is there to keep track of a resource/doc mastered in another service, it should use the same id as given to it from the mastering service.
+// The create listener just need to create the appropriate copy of the doc, so it will build the resrouce, save it to the DB and then ack the message.
+
+// test the listener. create /src/events/listeners/__test__/order-created-listener.test.ts
+
+// Start the listeners in the main micro service startup file index.ts
+
+// Carry out manual tests and use cases by sendign requests to the API and testing to see if the listeners work.
+// e.g. for the payments service, create an order and see if the payments service processed the created order event and then after an expiration, processed an order cancelled event.
+
+// Stripe works by using an in browser library. Our app will use the stripe library to take card details from the user. We never see these details. The library sends the card details
+// to stripe. Stripe then returns a token which acts as an authorisation to chage the users card. We only ever handle this token. Not the card details.
+// Our browser react app then sends the token to our payments service. The payments service then sends the token to stripe and this charges the users credit card.
+// So the payment service needs to be able to accept stripe tokens and send them to the stripe api.
+
+// Create routes for creating a new payment and the express handler for it.
+// src/routes/create.ts
+// Wire up the router in the app.ts file.
+
+// Update the ingress nginx service to route incoming request to /api/payments to this service. Copy an existing servive routing sections as a guide.
+// Test that the route handler executes using postman.
+
+// Add requireAuth to the route
+// Add validation to the route.
+// Add the route business logic.
+// Create test for the routes. /src/routes/__test__/create.test.ts
+
+// Install stripe package
+npm install stripe
+// Create a kubernetes secret to store the stripe API secret key
+kubectl create secret generic stripe-secret --from-literal STRIPE_KEY=<secret key here>
+// To see all secrets:
+kubectl get secrets
+// Open the deployment file and tell kubernetes that we want to take the information stored in the secret and assign it to the pod created by the payments deployment
+// Open the payments deployment file and add the key to the environment variables. Use the same type of entry and used for the JWT token.
+// Add a check to ameks ure the env variable can be accessed in the index.ts file alongside the other env variable checks.
+
+// Create a file for importing and instantiating a copy of the stripe library.
+/src/stripe.ts
+// Create an instance of Stripe in here and export it.
+
+// Import the stripe instance in the route handler that tries to create a charge /src/routes/create.ts
+// Build the charge in the create charge route, send it to stripe. Use postman to test the flow. A test token of tok_visa can be used.
+
+// For testing, created a mocker / fake version of stripe if you want to mock the stripe library.
+src/__mocks__/strip.ts
+
+// Associate payments with orders.
+// Create a payment model /src/models/payment.ts and save the payment in the create payment route handler after successful call to stripe creating a charge.
+// Update tests to check that the payment is stored in the DB.
+
+// Add publishing payment created event to the payment service.
+// Create the common-service/src/events/payment-created-event.ts
+// Add the new subject to common-service/src/events/subjects.ts
+// Add the event export from the common module index.ts.
+// re-publish the common module and force all other micro services to update to the latest version.
+
+// In the payments service, create a /src/events/publishers/payment-created-publisher.ts
+
+// Add listeners for the payment:created event in other microservices that need to consume it. Such as the orders service to mark the order as paid.
+
+

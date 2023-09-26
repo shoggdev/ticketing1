@@ -1,0 +1,47 @@
+// Copy .dickerignore, Dockerfile, package.json and tsconfig.json from another service
+// create a src folder
+// Copy nats-wrapper.ts, index.ts and the __mocks__ folder from the src folder of anotehr service into the src folder of this service
+// Update the service name in package.json
+// remove the dependences that relate to handling requests and mongo/mongoose:
+// This includes: @types/cookie-session, @types/express, @types/jsonwebtoken, @types/mongoose cookie-session express express-async-errors
+express-validator jsonwebtoken mongoose mongoose-update-if-current
+// Also. from the dev dependencies, remove @types/supertest, mongodb-memory-server and supertest.
+
+// Now install a timer / timeout functionality package called JS Bull and its TS types package
+npm install bull @types/bull
+// TODO - installing this says that bull now includes its own types so @types/bull shouldnt be needed.
+
+// Then install everything else in the pacakge.json file
+npm install
+
+// Inside index.ts, remove the imports for mongoose, app (the express app startup file), and any listners and publishers that arent needed.
+// remove any unused env variable checks.
+// remove any created publishers or listeners
+// remove any connection to a DB and assocaited logging
+// remove the express app creation and listen call.
+
+// Create a docker image
+docker build -t shoggdev/expiration .
+
+// Push it to docker hub
+docker push shoggdev/expiration
+
+// Create a deployment file for a redis instance if needed
+// Copy the yaml file contents from a mono depl file.
+// Change where is mentioneds resourcename-mongo to resourcename-redis
+// Change the image name from mongo to redis
+// Change the cluster ip service section so that where is mentioned resourcename-mongo change it to resourcename-redis
+// Change the port and targetport from mongo's 27017 to redis' 6379
+
+// Create a kubernetes deployment file for the new micro service names resourename-depl.yaml
+// Copy the contents from a deployment file for another micro service and change occurrences of the resource name to the new resource name.
+// Check the env variables and remove any that arnt needed. For a worker service, this will probbaly be the JWT and MONGo related env variables.
+// If using redis, add the env variable REDIS_HOST with a value of the name of the service to connect to. This will be defined in the redis server's depl file under the clusterip service section.
+// Remove the cluster ip service section from deplyment as its not needed. All communication will be through the nats streaming server.
+
+// Add the service image to the skaffold.yaml file.
+
+// Implement the event listeners that the worker service will need to consume. These go in src/events/listners. Use those in other microservices as a guide.
+// Create a queueGroupName in a separate file and use it in the listener implementations.
+
+

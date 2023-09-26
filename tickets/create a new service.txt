@@ -1,0 +1,55 @@
+New service basic procedure:
+1 Create a package.json
+2 Install dependencies
+3 Write a Dockerfile
+4 Create index.ts to run project
+5 build docker image and push to dockerhub
+6 write k8s file for deployment and the cluster ip service
+7 update skaffold.yaml to do file sync for the new micro service
+8 write k8s file for mongodb deplyment service
+
+// To speed up dev, copy the following from an existing microservice such as auth
+src/test/
+src/app.ts
+src/index.ts
+.dockerignore
+Dockerfile
+package-lock.json
+package.json
+tsconfig.json
+// Update the name in package.json
+// Update or delete the routes in app.ts
+// Install dependencies
+cd tickets
+npm install
+// Build the docker image and push to docker hub so that skaffold will find it. Not needed for google cloud etc.
+docker build -t shoggdev/tickets .
+docker push shoggdev/tickets
+// Create the service pod deployment file. Copy most of the contents from another. e.g.
+/tickets/infra/k8s/tickets-depl.yaml
+// Update skaffold.yaml. Copy a section for another service such as auth.
+// Create the deplyment file for the mongodb pod and cluster ip service. Copy one from another microservice such as auth.
+/tickets/infra/k8s/tickets-mongo-depl.yaml
+// Update the microservice main index.ts file to point to the correct mongodb database.
+// Change the mongoose.connect('mongodb://auth-mongo-srv:27017/auth') to mongoose.connect('mongodb://tickets-mongo-srv:27017/tickets');
+// The URI for the DB should now come from an environment variable. So this should be caught in the updates to the deployment files.
+
+// Write tests and implementation of the service.
+
+// Update the ingress nginx config file to make sure requests from outside to the microservice's routes get forwarded to it
+
+// Import the eventing stuff. e.g. for NATS
+npm install node-nats-streaming
+
+// CONCURRENCY support
+// Install mongoose-update-if-current package
+npm install mongoose-update-if-current
+// Add the updateIfCurrentPlugin to the ticket model schema in src/models/ticket.ts and add the version field to the TicketDoc definition
+
+// Test that the versioning is working. Create /src/models/__test__/ticket.test.ts
+
+// Add version to the event data model in the common library
+// update the common library npm package and then update the microservice to get the latest version of the common module
+
+// Add the version number to the events wherever they are being published in the microservice route handlers
+// This will usually be in the create and update routes.

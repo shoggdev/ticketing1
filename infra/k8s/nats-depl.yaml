@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+        - name: nats
+          image: nats-streaming:0.17.0
+# Desribe the arguments that will be supplied to the primary command that gets executed when a container is built out of the image
+          args: [
+            '-p',
+            '4222',
+            '-m',
+            '8222',
+# Heart beat interval checking for the health of clients
+            '-hbi',
+            '5s',
+# How long each client has to respond to the heartbeat check requests
+            '-hbt',
+            '5s',
+# How many heartbeat check failures before client is assumed dead          
+            '-hbf',
+            '2',
+            '-SD',
+# ClusterId
+            '-cid',
+            'ticketing'
+          ]
+---
+# Cluster IP Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-srv
+# Tell the service how to behave
+spec:
+# Not specifying type here. The default will be cluster ip.
+# Tell the service which pod to gorvern access to
+  selector:
+# Govern access to pods with the following label
+    app: nats
+  ports:
+    - name: client
+      protocol: TCP
+      port: 4222
+      targetPort: 4222
+    - name: monitoring
+      protocol: TCP
+      port: 8222
+      targetPort: 8222

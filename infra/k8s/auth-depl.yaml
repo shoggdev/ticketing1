@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl
+spec:
+# Number of pods we want to run
+  replicas: 1
+# Tell the deplyment how to find all the pods it's going to create
+  selector:
+    matchLabels:
+      app: auth
+# Describe how to create the pods the deplyment will create
+  template:
+    metadata:
+# Specify a label for the pod
+      labels:
+        app: auth
+# Tell the pod how to behave
+    spec:
+      containers:
+        - name: auth
+          image: shoggdev/auth
+# Specify the environment variables
+          env:
+# Specify the env variable name that will be used to access it from within the container code
+            - name: MONGO_URI
+# Value should be set from the name of the cluster ip service set in auth-mongo-depl.yaml / name of database in mongo instance. i.e. /auth.
+              value: 'mongodb://auth-mongo-srv:27017/auth'
+# Specify the env variable name that will be used to access it from within the container code
+            - name: JWT_KEY
+# Set it to the value of the environment variable.
+              valueFrom:
+                secretKeyRef:
+# Specofy the name of secret holding the value. The name of the secret was set when it was created
+# kubectl create secret generic jwt-secret --from-literal=JWT_KEY=TODO_TEMPORARY_SECRET_PRIVATE_KEY
+                  name: jwt-secret
+# Specify the name of the key in the secret to get the value from to set the enviroment variable
+                  key: JWT_KEY
+---
+# Create a cluster ip service to allow communication from and only from other things in the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-srv
+# Tell the service how to behave
+spec:
+# Not specifying type here. The default will be cluster ip.
+# Tell the service which pod to gorvern access to
+  selector:
+# Govern access to pods with the following label
+    app: auth
+  ports:
+    - name: auth
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

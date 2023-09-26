@@ -1,0 +1,63 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+# Tell nginx that some of the paths below will have regular expressions in them
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  rules:
+    - host: ticketing.dev
+      http:
+        paths:
+# User auth service paths
+          - path: /api/users/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+# Specify the cluster ip service name specified in the pod deplyment file
+                name: auth-srv
+                port:
+# Specify the port for the cluster ip specified in the pod deplyment file
+                  number: 3000
+# Tickets service paths
+          - path: /api/tickets/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+# Specify the cluster ip service name specified in the pod deplyment file
+                name: tickets-srv
+                port:
+# Specify the port for the cluster ip specified in the pod deplyment file
+                  number: 3000
+# Orders service paths
+          - path: /api/orders/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+# Specify the cluster ip service name specified in the pod deplyment file
+                name: orders-srv
+                port:
+# Specify the port for the cluster ip specified in the pod deplyment file
+                  number: 3000
+# Payments service paths
+          - path: /api/payments/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+# Specify the cluster ip service name specified in the pod deplyment file
+                name: payments-srv
+                port:
+# Specify the port for the cluster ip specified in the pod deplyment file
+                  number: 3000
+# Client app paths. Specify the paths that get routed to the client service
+          - path: /?(.*)
+            pathType: Prefix
+            backend:
+              service:
+# Specify the cluster ip service name specified in the pod deplyment file
+                name: client-srv
+                port:
+# Specify the port for the cluster ip specified in the pod deplyment file
+                  number: 3000

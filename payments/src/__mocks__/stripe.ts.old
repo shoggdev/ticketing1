@@ -1,0 +1,16 @@
+// Need to export something called stripe with a charges property and on that charges property there needs to be a create method.
+
+export const stripe = {
+  charges: {
+    // When we call the create function we get back a promise that resolves itself with an empty object
+    // We need this because when the stripe create method is called, we await it waiting for a promise ot be resolved.
+    create: jest.fn()
+    .mockImplementation(
+      ({amount, source, currency}) => {
+        // This is what gets executed when publish is called
+        console.log('Creating charge at stripe');
+      }
+    )
+    //.mockResolvedValue({})
+  }
+};

@@ -1,0 +1,96 @@
+// Creating a new micro service based off an existing one...
+// Copy over .dockerignore, Dockerfile, package.json, package-lock.json, tscongig.json
+// Update any references in those files to the new micro service name. This should require changes in package.json
+
+// Make folder called src and copy over into it index.ts, app.ts and nats-wrapper.ts
+
+// Install dependences
+npm install
+
+// Build a docker image
+docker build -t shoggdev/orders .
+
+// Push the image to dockerhub
+docker push shoggdev/orders
+
+// Create a kubernetes deployment file for the new microservice by duplicating an existing one and updating references to the new micro service name.
+// Also create a kubernetes deplyment file for the new microservice mongodb deployment by duplicating an existing one and updating the refercnes in the same way.
+// Do a search on these files for the old microservice name to make sure that all have been updated with the new name.
+
+// Add a new image section for the new micro service to skaffold.yaml by copying an existing one and updating the name of the microservice to the name of the one being added.
+
+// Update the ingress service yaml file to include routing rules for the new microservice. Copy and edit the lines for an existing microservice.
+
+// Create a /src/routes folder and add route files in there such as create.ts, show.ts, index.ts, delete.ts
+// Add basic route handling to each one with a response thats a simple empty object to start with. Copy from existing microservice to start with.
+// Update app.ts with the new route handlers.
+
+// Start on the create route. Add the requireAuth if appropriate and the validation.
+
+// Make the /src/models folder and create the model for the microservice resource.
+
+// Implement the creat route
+
+// Setup testing. Create /src/test folder.
+// Copy the src/test/setup.ts file from another microservice.
+// Copy the src/__mocks__ folder from another microservice.
+// Check to see if the test suite will run with
+npm run test
+// Create /src/routes/__test__ folder
+// And the file for testing the create route /src/routes/__test__/create.test.ts
+
+// Create any events the microservice will publish.
+// Add them to the common library /common/src/events/subjects.ts
+// Define event files in common/src/events/resource-created-event.ts
+// Export the events in common/src/index.ts
+// Update an republish the common module.
+cd to /common
+npm run pub
+// Update the version of the common module used by the new microservice.
+cd to new microservice folder
+npm update @shogglearningtixcommon/common
+
+// Create src/events/publishers
+// Create the publisher files in src/events/publishers/resrouce-created-publisher.ts
+// Implement the publishers using examples from another microservice.
+
+// Use the event publishers in the relevant microservice routes to pubish events.
+// e.g publish a resource created event at the end of the create resource route handler.
+
+// Add tests to check that events are published.
+// Remember the test files will need to import natsWrapper and that when it is imported, the mock will actually be used.
+
+// Create the listeners the micro service will need.
+// Create /src/events/listeners
+// Create the listener files in there such as one responding to a resource being created event: resource-created-listener.ts
+
+
+// Create the instances of the listeners in the micro services and start them listening inside the route index.ts file.
+
+
+// ADD SUPPORT FOR CONCURRENCY
+// Add support for optmisitc concurrency control to mongoose
+npm install mongoose-update-if-current
+// Add version support to any model that the service consumes events with version number in.
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
+// And add the version field to the TicketDoc and config the schema
+ticketSchema.set('versionKey', 'version');
+ticketSchema.plugin(updateIfCurrentPlugin);
+
+// Add support for versioning into the listeners. The update resource listener shouldnt just look for the resource to update by an Id,
+// it should now look for the resource by id and with a version of one less that the version of the resource in the event it has consumed.
+// Instead of doing a resource.findOne() call, add a static helper method onto the Resource model to do this.
+// e.g. resource.findByEvent()
+
+// Add version support to any model the service produces events with a version number in, for example, model the service has main responsibility for.
+
+// Test the listeners in the micro service.
+// Create the tests folder /src/events/listeners/__test__
+// The create the tests for each listener. e.g/ /src/events/listeners/__test__/resource-created-listener.test.ts
+
+
+
+
+
+
+

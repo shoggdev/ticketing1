@@ -1,0 +1,121 @@
+// Create the microservice folder
+mkdir auth
+cd auth
+// create the microservice project
+npm install -y
+// install some dependencies for the microservice
+npm install typescript ts-node-dev express @types/express
+// create a tsconfig.json file
+tsc --init
+// create a src folder for source code
+mkdir src
+cd src
+// make the main microservice source file
+index.ts
+// Add a start script to package.json
+"start": "ts-node-dev src/index.ts"
+// Run the dev server locally with
+npm start
+
+// Create a dockerfile to build a docker image for the microservice
+/ticketing/auth/Dockerfile
+
+// Create a kubernetes pod and clusterip config file so that a pod for the microservice
+// can be created.
+// /ticketing/infra/k8s/auth-deply.yaml
+
+// Create a skaffold file in top level project folder to create cluster
+/ticketing/skaffold.yaml
+
+// Setup an ingress nginx service to that traffic can get in and out of the cluster
+// Install ingress-nginx from kubernetes.github.io/ingress-nginx/deploy
+// Run the mandatory command described on that page
+// kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/nginx bla bla bla
+
+// Write a new config file for ingress-nginx that will be loaded into the ingress-nginx controller installed
+// by the mandatory command above.
+// The config file will make sure requests coming into /api/users will route to the auth microservice.
+/ticketing/infra/k8s/ingress-srv.yaml
+// Update the local dev machine hosts file /etc/hosts to route the host domain name inclused in the ingress config.
+// e.g. route 127.0.0.1 ticketing.dev
+// When you visit this URL in a browser, the browser will detect the nginx self signed certificate and consider
+// it fake. So click anywhere on the brwoser warning page and type thisisunsafe. The page should then load.
+
+
+// Micro service development
+
+// Install express-validator
+npm install express validator
+
+// Install express-async-errors package. This add similar functionality to catchAsync() function.
+npm install express-async-errors
+
+// Install mongoose package - the nodejs mongodb adapter package
+npm install mongoose
+npm install @types/mongoose
+
+// Run a MongoDB instance in a POD. So we need a k8s deployment to create the pod and a cluster ip
+// service to allow communication with that pod.
+// /infra/k8s/auth-mongo-depl.yaml
+
+// Install the cookie-session package to provide a JWT browser-api transport mechanism
+// This allows us to store info in the cookie itself
+// Also install the typescript defintion library for it
+npm isntall cookie-session @types/cookie-session
+
+// Install the "jsonwebtoken" package for JWT creation support and the typescript type library
+npm install jsonwebtoken @types/jsonwebtoken
+
+// We need to be able to store the JWT signing key somewhere secret and safe that is accessible to all
+// the microservice pods in the kubernetes cluster. So, create secret as a kubernetes cluster object that
+// can be loaded and accessed as an environment variable in a container in a microservice pod.
+kubectl create secret generic jwt-secret --from-literal=JWT_KEY=TODO_TEMPORARY_SECRET_PRIVATE_KEY
+// Better to use a command like this than put this in a config file.
+// To get a list of all created secrets use
+kubectl get secrets
+
+// TESTING Setup
+// Inside the microservice folder such as /auth, install jest, supertest and memory mongodb, along with their typescript
+// types as development only dependencies using --save-dev. These won't be installed in docker images.
+npm install --save-dev @types/jest @types/supertest jest ts-jest supertest mongodb-memory-server
+// Using mongodb memory server sets up in memory isntances of mongodb. this will allow multiple instances of test suites
+// to be run at the same time and across different projects without them all tryingto access the same db instance.
+// Update the microservice dockerfile so that the RUN npm install line becomes
+RUN npm install --omit=dev
+// Add a "test" script to the scripts section of package.json.
+"test": "jest --watchAll --no-cache"
+// When npm run test is run from the command line, this will start the jest runner and it will test everything whenever a file changes.
+// Jest doesn't support typescript out of the box and may get confused when we change a typescript source file. The no cache option adds
+// in a fix for some issues related to this.
+// Add in a config block to package.json for jest itself
+
+// Update the service to use the common module. Install the common module into the service
+cd /ticketing/auth
+npm install @shogglearningtixcommon/common
+// Update the import statements for errors and middlewares functionality in the microservice source to import this from the common
+// module now.
+
+// To update a microservice to use the latest version of the common module, inside the service folder run
+npm update @shogglearningtixcommon/common
+
+// To check if a container is running the latest code or version of a dependency:
+kubectl get pods
+// Start a shell inside the pod running the container
+kubectl exec -it auth-depl-xxxxxxxxxxx -- sh
+cd node_modules/@shogglearningtixcommon/common
+cat package.json
+exit
+
+//NATS
+
+// To restart nats, get the pod name and run
+kubectl delete pod nats-depl-XXXXXX
+
+
+-- Git setup --
+Inside root of ticketing,
+git init
+Also in the same root, create a .gitignore file
+git add .
+git commit -m "Initial commit"
+

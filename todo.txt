@@ -1,0 +1,4 @@
+// Make sure docker images are private if on dockerhub
+
+// Add banned user functionality
+

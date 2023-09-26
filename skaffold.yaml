@@ -1,0 +1,66 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+# List all the config files to load into cluster
+manifests:
+  rawYaml:
+    - ./infra/k8s/*
+deploy:
+  kubectl: {}
+build:
+  local:
+# Don't automatically push to dockerhub when you build an image
+    push: false
+# List the things that will be built
+  artifacts:
+    - image: shoggdev/auth
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+# Tell skaffold to watch for changes to any files in /src that end in .ts
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: shoggdev/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+# Tell skaffold to watch for changes to any files in /src that end in .ts
+      sync:
+        manual:
+          - src: '**/*.js'
+            dest: .
+    - image: shoggdev/tickets
+      context: tickets
+      docker:
+        dockerfile: Dockerfile
+# Tell skaffold to watch for changes to any files in /src that end in .ts
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: shoggdev/orders
+      context: orders
+      docker:
+        dockerfile: Dockerfile
+# Tell skaffold to watch for changes to any files in /src that end in .ts
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: shoggdev/expiration
+      context: expiration
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
+    - image: shoggdev/payments
+      context: payments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .
