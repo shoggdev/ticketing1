@@ -118,4 +118,17 @@ git init
 Also in the same root, create a .gitignore file
 git add .
 git commit -m "Initial commit"
+Create a repo on github.
+Tie the github repo to theone made on the local machine. Copy the link to the repo in github
+git remote add origin https://github.com/shoggdev/ticketing1.git
+git push origin master
 
+Create an action tests.
+Set it to execute on a pull request event and run the auth service on an ubuntu server.
+It should isntall the services dependencies and run the tests:ci scripts.
+Add a new test:ci script to the auth packages.json.
+See all the files that have changed with
+git status
+git add ..
+git commit -m "add test:ci to auth"
+git push origin master
