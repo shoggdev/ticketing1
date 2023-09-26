@@ -1,4 +1,4 @@
-name: tests
+name: tests-orders
 
 # When the action should run
 on:
@@ -13,4 +13,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 # Run the test script in the auth service
-      - run: cd auth && npm install && npm run test:ci
+      - run: cd orders && npm install && npm run test:ci
